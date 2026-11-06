@@ -64,9 +64,6 @@ Decided on a **ripple-carry adder** for least amount of transistors used (also d
 
 My goal was to use **as few transistors as possible**. Later we can decide whether to trade some transistors for fewer gates or a shorter critical path.
 
-Example: the `XNOR` / `XNOR_Z` gates are built around a `NAND2`. `XNOR_Z` also brings that internal NAND output out as `Z`, so the adders can reuse it instead of adding another gate.
-
-![XNOR_Z schematic](docs/XNOR_Z_schematic.png)
 
 *`XNOR_Z` schematic: 6 transistors in the main circuit (M0 to M5) + a `NAND2` (4) in the Z Gate Input box = 10 transistors. It also shows the box layout described under Schematic conventions.*
 
@@ -100,4 +97,9 @@ Guidelines (If you guys want to change these let me know - just how I do it):
 2. Connect between boxes with wire labels instead of long wires. Double-check label spelling, because a typo creates a floating net.
 3. The boxes are only drawings. Under Notes (can do a label and a shape)
 4. Write design notes in the boxes (critical path, beta ratios, why a gate is reused) (I need to do this in my schematic still).
+
 Example:
+
+![XNOR_Z schematic](docs/XNOR_Z_schematic.png)
+
+Only need an output box if you have a wire bus with a bunch of wire connecting into the output.
