@@ -1,4 +1,4 @@
-# 555_project
+# 555_project -  Using claude to organize the readme better
 
 Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 
@@ -63,11 +63,6 @@ Built from one `NAND2` plus 6 transistors (see the `XNOR_Z` schematic image unde
 ```
 Z  = (AB)'                     NAND2 in the "Z Gate Input" box (XNOR_Z also outputs this)
 
-Pull-up   (PMOS):  M3(Z) in parallel with M5(A) in series with M4(B)
-          Y = 1 when  Z' + A'B'
-Pull-down (NMOS):  M1(A) in parallel with M2(B), in series with M0(Z)
-          Y = 0 when  (A + B)Z
-
 Y  = ((A + B)Z)'
    = Z' + A'B'
    = AB + A'B'                 substitute Z' = AB
@@ -104,8 +99,6 @@ Cout = (Z N1)'                    NAND2
      = AB + (A XOR B)Cin
      = AB + ACin + BCin           majority function
 ```
-
-Critical path for Cout: XNOR, INV, NAND, NAND (4 gates).
 
 Check: `((AB)' ((A'B + AB')C)')'` simplifies to `AB + AC + BC`, with C = Cin.
 
