@@ -1,7 +1,5 @@
 # 555_project
 
-Cadence library: `ECE555`
-
 Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 
 ## Progress
