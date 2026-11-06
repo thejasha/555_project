@@ -66,6 +66,10 @@ My goal was to use **as few transistors as possible**. Later we can decide wheth
 
 Example: the `XNOR` / `XNOR_Z` gates are built around a `NAND2`. `XNOR_Z` also brings that internal NAND output out as `Z`, so the adders can reuse it instead of adding another gate.
 
+![XNOR_Z schematic](docs/XNOR_Z_schematic.png)
+
+*`XNOR_Z` schematic: 6 transistors in the main circuit (M0 to M5) + a `NAND2` (4) in the Z Gate Input box = 10 transistors. It also shows the box layout described under Schematic conventions.*
+
 ### Transistor counts
 
 | Cell | Built from | Transistors |
