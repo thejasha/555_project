@@ -1,0 +1,68 @@
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+wm geometry . 900x785+8+85
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+wm geometry . 900x785+1780+741
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+ScopeSigMgr:loadpffile /userspace/jtamann/ece555/ECE555/INV_2bit/test.tr0 1 openonly
+# PF:1
+wm geometry .sigmgr._PF:1 232x242+1820+960
+wm geometry .sigmgr._PF:1 633x459+1820+960
+pf:read PF:1 v(in<0>)
+# WF:1:2
+Graph addsignal WF:1:2 -region new -yview real(y) -xview real(x) -tracehi 2
+# Signal0
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+pf:read PF:1 v(in<1>)
+# WF:1:1
+Graph addsignal WF:1:1 -region new -yview real(y) -xview real(x) -tracehi 2
+# Signal1
+pf:read PF:1 v(out<0>)
+# WF:1:3
+Graph addsignal WF:1:3 -region new -yview real(y) -xview real(x) -tracehi 2
+# Signal2
+wm geometry .sigmgr._PF:1 633x459+2130+986
+pf:read PF:1 v(out<1>)
+# WF:1:4
+Graph addsignal WF:1:4 -region new -yview real(y) -xview real(x) -tracehi 2
+# Signal3
+wm geometry .sigmgr._PF:1 633x459+2013+997
+Mdi:Resize 661 564
+Mdi:Move 5 5
+Mdi:ArrangeIcons
+wm geometry .sigmgr 376x204+2574+824
+wm geometry .sigmgr 376x204+2294+820
+Mdi:ArrangeIcons
+wm geometry .sigmgr 376x204+2574+824
+Graph axisconfig {AxisY(0,0) AxisX(0) AxisY(1,0) AxisY(2,0) AxisY(3,0)} -range {{0.2965 0.643 } {990p 1.98n } {0.2965 0.643 } {-0.005 0.49 } {-0.005 0.49 }}
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Graph:DSel
+Graph:Select Graph0
+Graph axisconfig {AxisY(2,0) AxisX(0)} -range {{0.49669445317496 0.33271069563668} {1.1698326104n 1.3057528596n}}
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Graph axisconfig {AxisY(0,0) AxisX(0) AxisY(1,0) AxisY(2,0) AxisY(3,0)} -range {{0.398 0.596 } {1.199n 1.298n } {0.398 0.596 } {0.366 0.432 } {0.064 0.328 }}
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Graph axisconfig {AxisY(0,0) AxisX(0) AxisY(1,0) AxisY(2,0) AxisY(3,0)} -range {{0.15 0.75 } {1.075n 1.375n } {0.15 0.75 } {0.32 0.48 } {-0.2 0.6 }}
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Graph axisconfig {AxisY(0,0) AxisX(0) AxisY(1,0) AxisY(2,0) AxisY(3,0)} -range {{-0.4 1.2 } {800p 1.6n } {-0.4 1.2 } {0.2 0.6 } {-0.66 1.02 }}
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
+Graph axisconfig {AxisY(0,0) AxisX(0) AxisY(1,0) AxisY(2,0) AxisY(3,0)} -range {{-2.5 3.5 } {-250p 2.75n } {-2.5 3.5 } {-0.03 0.81 } {-2.5 3.5 }}
+Mdi:ArrangeIcons
+wm geometry .sigmgr 376x204+2329+844
+wm geometry .sigmgr 376x204+2574+824
+Mdi:ArrangeIcons
+wm geometry .sigmgr 376x204+2329+844
+Mdi:ArrangeIcons
+Mdi:ArrangeIcons
