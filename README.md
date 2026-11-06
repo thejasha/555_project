@@ -103,3 +103,5 @@ Example:
 ![XNOR_Z schematic](docs/XNOR_Z_schematic.png)
 
 Only need an output box if you have a wire bus with a bunch of wire connecting into the output.
+
+For symbol, have VDD top, VSS bottom, Inputs left, Outputs right if it makes sense, in the 2/3bit adder I had the S pin be on the bottom.
