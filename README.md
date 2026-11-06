@@ -12,7 +12,7 @@ Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 - [x] Tested (correct output)
 - [ ] Beta matching (NMOS/PMOS sizing)
 
-**XNOR Z** (`XNOR_Z`)
+**XNOR Z** (`XNOR_Z`) (Same as the XNOR, but added the NAND AB as an output (can use instead of computing NAND again))
 - [x] Schematic
 - [x] Symbol
 - [x] Tested (correct output)
