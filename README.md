@@ -74,8 +74,7 @@ Y  = ((A + B)Z)'
 
 ### Half adder
 
-Sum = A^B
-Cout = AB
+Desired Logic: Sum = A^B | Cout = AB
 
 ```
 X    = (A XNOR B) = AB + A'B'     XNOR_Z output Y
@@ -86,10 +85,11 @@ Cout = Z'  = AB
 
 ### Full adder
 
-Sum = A^B^C
-Cout = AB+C(A+B)
+Desired: Sum = A^B^C | Cout = AB+C(A+B)
 
 ```
+
+
 X1   = A XNOR B = (A XOR B)'      XNOR_Z(A, B), also gives Z = (AB)'
 Sum  = X1 XNOR Cin                2 XNORs make an XOR, no inverter needed
      = A XOR B XOR Cin
