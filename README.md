@@ -90,11 +90,10 @@ Each schematic is split into boxes drawn with notes:
 - **Main circuit box:** the core logic
 - **Sub-circuit box(es):** helper pieces, such as the NAND inside the XNOR
 
-Guidelines:
+Guidelines (If you guys want to change these let me know - just how I do it):
 
 1. Use the same layout in every cell so anyone opening it knows where to look.
-2. Connect between boxes with wire labels instead of long wires. Double-check label spelling, because a typo creates a floating net. Run Check and Save to catch it.
-3. The boxes are only drawings. They don't group anything electrically or change the netlist.
-4. Write design notes in the boxes (critical path, beta ratios, why a gate is reused).
-
-TODOs are tracked in the GitHub issues.
+2. Connect between boxes with wire labels instead of long wires. Double-check label spelling, because a typo creates a floating net.
+3. The boxes are only drawings. Under Notes (can do a label and a shape)
+4. Write design notes in the boxes (critical path, beta ratios, why a gate is reused) (I need to do this in my schematic still).
+Example:
