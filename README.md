@@ -53,7 +53,7 @@ Supporting cells already in the library: `INV_fin_larger`, `NAND2`, `AND2`,
 
 ## Adder design
 
-We're using a **ripple-carry adder**:
+Decided on a **ripple-carry adder** for least amount of transistors used (also dont really need CLA for 2/3bits):
 
 - **Bit 0** uses a **half adder**, since there's no carry-in for the first bit.
 - **Bits 1 and up** use **full adders**, each taking the carry-out from the previous bit.
@@ -62,7 +62,7 @@ We're using a **ripple-carry adder**:
 
 ## Optimization approach
 
-For now the goal is to use **as few transistors as possible**. Later we can decide whether to trade some transistors for fewer gates or a shorter critical path.
+My goal was to use **as few transistors as possible**. Later we can decide whether to trade some transistors for fewer gates or a shorter critical path.
 
 Example: the `XNOR` / `XNOR_Z` gates are built around a `NAND2`. `XNOR_Z` also brings that internal NAND output out as `Z`, so the adders can reuse it instead of adding another gate.
 
