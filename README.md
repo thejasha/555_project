@@ -1,4 +1,5 @@
-# 555_project -  Using claude to organize the readme better
+# 555_project
+(FYI - using claude to organize the readme better)
 
 Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 
