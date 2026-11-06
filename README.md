@@ -52,6 +52,63 @@ Decided on a **ripple-carry adder** for least amount of transistors used (also d
 - `2bit_adder` = half adder + 1 full adder
 - `3bit_adder` = half adder + 2 full adders
 
+## Boolean logic
+
+Paste the expressions into https://www.boolean-algebra.com/ to check them. Notation: `'` = NOT, `+` = OR, `AB` = A AND B.
+
+### XNOR / XNOR_Z
+
+Built from one `NAND2` plus 6 transistors (see the schematic image below).
+
+```
+Z  = (AB)'                     NAND2 in the "Z Gate Input" box (XNOR_Z also outputs this)
+
+Pull-up   (PMOS):  M3(Z) in parallel with M5(A) in series with M4(B)
+          Y = 1 when  Z' + A'B'
+Pull-down (NMOS):  M1(A) in parallel with M2(B), in series with M0(Z)
+          Y = 0 when  (A + B)Z
+
+Y  = ((A + B)Z)'
+   = Z' + A'B'
+   = AB + A'B'                 substitute Z' = AB
+   = A XNOR B
+```
+
+Check: `((A+B)(AB)')'` simplifies to `AB + A'B'`.
+
+### Half adder
+
+One `XNOR_Z` + 2 inverters. Carry reuses the `Z` (NAND) output, so no extra AND gate is needed.
+
+```
+X    = (A XNOR B) = AB + A'B'     XNOR_Z output Y
+Z    = (AB)'                      XNOR_Z output Z
+Sum  = X'  = A'B + AB'  = A XOR B
+Cout = Z'  = AB
+```
+
+Check: `(AB + A'B')'` simplifies to `A'B + AB'`, and `((AB)')'` simplifies to `AB`.
+
+### Full adder
+
+2 XNORs + 2 `NAND2` + 1 inverter. The carry is built as NAND-NAND (same as OR of ANDs).
+
+```
+X1   = A XNOR B = (A XOR B)'      XNOR_Z(A, B), also gives Z = (AB)'
+Sum  = X1 XNOR Cin                2 XNORs make an XOR, no inverter needed
+     = A XOR B XOR Cin
+P    = X1' = A XOR B              inverter
+N1   = (P Cin)'                   NAND2
+Cout = (Z N1)'                    NAND2
+     = AB + P Cin
+     = AB + (A XOR B)Cin
+     = AB + ACin + BCin           majority function
+```
+
+Critical path for Cout: XNOR, INV, NAND, NAND (4 gates).
+
+Check: `((AB)' ((A'B + AB')C)')'` simplifies to `AB + AC + BC`, with C = Cin.
+
 ## Optimization approach
 
 My goal was to use **as few transistors as possible**. Later we can decide whether to trade some transistors for fewer gates or a shorter critical path.
