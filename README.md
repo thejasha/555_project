@@ -58,7 +58,7 @@ Paste the expressions into https://www.boolean-algebra.com/ to check them. Notat
 
 ### XNOR / XNOR_Z
 
-Built from one `NAND2` plus 6 transistors (see the schematic image below).
+Built from one `NAND2` plus 6 transistors (see the `XNOR_Z` schematic image under Schematic conventions).
 
 ```
 Z  = (AB)'                     NAND2 in the "Z Gate Input" box (XNOR_Z also outputs this)
