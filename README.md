@@ -48,7 +48,8 @@ Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 - [ ] Symbol
 - [ ] Tested
 
-Supporting cells already in the library: `INV`, `INV_fin_larger`, `NAND2`, `AND2`, `INV_2bit`.
+Supporting cells already in the library: `INV_fin_larger`, `NAND2`, `AND2`,
+(INV_fin_larger is a 1.5 beta inverter while INV is a 1 beta (could remove gates if not needed like INV and AND2))
 
 ## Adder design
 
