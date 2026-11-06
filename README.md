@@ -58,9 +58,12 @@ Paste the expressions into https://www.boolean-algebra.com/ to check them. Notat
 
 ### XNOR / XNOR_Z
 
-Built from one `NAND2` plus 6 transistors (see the `XNOR_Z` schematic image under Schematic conventions).
+Desired Logic: AB + A'B'
+
 
 ```
+CMOS implementation: Y = (A + B (AB)')'
+
 Z  = (AB)'                     NAND2 in the "Z Gate Input" box (XNOR_Z also outputs this)
 
 Y  = ((A + B)Z)'
@@ -69,11 +72,10 @@ Y  = ((A + B)Z)'
    = A XNOR B
 ```
 
-Check: `((A+B)(AB)')'` simplifies to `AB + A'B'`.
-
 ### Half adder
 
-One `XNOR_Z` + 2 inverters. Carry reuses the `Z` (NAND) output, so no extra AND gate is needed.
+Sum = A^B
+Cout = AB
 
 ```
 X    = (A XNOR B) = AB + A'B'     XNOR_Z output Y
@@ -82,11 +84,10 @@ Sum  = X'  = A'B + AB'  = A XOR B
 Cout = Z'  = AB
 ```
 
-Check: `(AB + A'B')'` simplifies to `A'B + AB'`, and `((AB)')'` simplifies to `AB`.
-
 ### Full adder
 
-2 XNORs + 2 `NAND2` + 1 inverter. The carry is built as NAND-NAND (same as OR of ANDs).
+Sum = A^B^C
+Cout = AB+C(A+B)
 
 ```
 X1   = A XNOR B = (A XOR B)'      XNOR_Z(A, B), also gives Z = (AB)'
@@ -99,8 +100,6 @@ Cout = (Z N1)'                    NAND2
      = AB + (A XOR B)Cin
      = AB + ACin + BCin           majority function
 ```
-
-Check: `((AB)' ((A'B + AB')C)')'` simplifies to `AB + AC + BC`, with C = Cin.
 
 ## Optimization approach
 
