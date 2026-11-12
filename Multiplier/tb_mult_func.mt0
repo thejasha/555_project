@@ -1,0 +1,12 @@
+$DATA1 SOURCE='PrimeSim HSPICE' VERSION='Y-2026.03 linux64' PARAM_COUNT=0
+.TITLE '** multiplier testbench: 9 valid input combos, 1 ns each'
+ p1_t0            p0_t0            p1_t1            p0_t1           
+ p1_t2            p0_t2            p1_t3            p0_t3           
+ p1_t4            p0_t4            p1_t5            p0_t5           
+ p1_t6            p0_t6            p1_t7            p0_t7           
+ p1_t8            p0_t8            temper           alter#          
+  6.4582e-08       2.3790e-07       6.4786e-08       2.3795e-07     
+  1.1145e-05       2.3868e-07       9.3553e-09       2.3568e-07     
+  4.6275e-07       9.0000e-01       9.0000e-01       9.0000e-01     
+  1.1316e-05       2.3146e-07       9.0000e-01       9.0000e-01     
+  4.6363e-07       9.0000e-01       2.5000e+01      1               
