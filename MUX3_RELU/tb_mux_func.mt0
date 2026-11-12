@@ -1,0 +1,12 @@
+$DATA1 SOURCE='PrimeSim HSPICE' VERSION='Y-2026.03 linux64' PARAM_COUNT=0
+.TITLE '* tb_mux_func.sp -- exhaustive functional test of mux3_relu (pre-layout)'
+ z0_s0            z1_s0            z0_s1            z1_s1           
+ z0_s2            z1_s2            z0_s3            z1_s3           
+ z0_s4            z1_s4            z0_s5            z1_s5           
+ z0_s6            z1_s6            z0_s7            z1_s7           
+ temper           alter#          
+  4.3917e-07       4.3917e-07       9.0000e-01       4.3917e-07     
+  1.1370e-05       9.0000e-01       9.0000e-01       9.0000e-01     
+  4.3565e-06       4.3565e-06       4.6156e-07       1.8852e-06     
+  4.3010e-06       4.6266e-07       4.6208e-07       4.6164e-07     
+  2.5000e+01      1               

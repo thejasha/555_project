@@ -36,10 +36,13 @@ Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX
 - [ ] Symbol
 - [ ] Tested
 
-**3-bit 2-to-1 MUX**
-- [ ] Schematic
-- [ ] Symbol
-- [ ] Tested
+**3-bit 2-to-1 MUX / ReLU** (`MUX3_RELU`): D0 = adder sum `Y<2:0>`, D1 = `000`, select = sign bit `Y<2>`
+- [x] Schematic
+- [x] Symbol
+- [x] Tested (exhaustive, 8 input cases, FO4 load, 0.9 V, 25 ps edges: all pass)
+- [x] Beta matching (reuses `INV_fin_larger` 2n/3p and `NOR2` 2n/6p, beta 1.5)
+
+Reuses `INV_fin_larger` and `NOR2` (no new supporting cells).
 
 Supporting cells already in the library: `INV_fin_larger`, `NAND2`, `AND2`,
 (INV_fin_larger is a 1.5 beta inverter while INV is a 1 beta (could remove gates if not needed like INV and AND2))
@@ -128,6 +131,53 @@ Cout = (Z N1)'                    NAND2
 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 |
 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 |
 
+### 3-bit 2-to-1 MUX (ReLU)
+
+Desired: z = max(0, y), y = `3bit_adder` output `S<2:0>` (two's complement, range -3..+3)
+
+```
+MUX:   Z<i> = S'·D0<i> + S·D1<i>      S = Y<2> (sign bit), D0 = Y, D1 = 000
+     = Y<i>·Y<2>'                     D1 = 0 removes the second term
+     = (Y<i>' + Y<2>)'                NOR2(A = INV(Y<i>), B = Y<2>)
+Z<2> = Y<2>·Y<2>' = 0                 constant, no transistors (tie to VSS at top level)
+```
+
+| Y<2:0> | y | Z<1:0> | z |
+|:-:|:-:|:-:|:-:|
+| 000 | 0 | 00 | 0 |
+| 001 | +1 | 01 | 1 |
+| 010 | +2 | 10 | 2 |
+| 011 | +3 | 11 | 3 |
+| 100 | -4 (unused) | 00 | 0 |
+| 101 | -3 | 00 | 0 |
+| 110 | -2 | 00 | 0 |
+| 111 | -1 | 00 | 0 |
+
+- `Y<2>` is the slowest adder output (end of the ripple carry chain), so it goes straight into the NOR2: **1 gate** from sign bit to output.
+  An AND2-based MUX (`AND2(Y<i>, INV(Y<2>))`) would put INV + NAND2 + INV = 3 gates on the critical path.
+- `Y<2>` goes to NOR2 input `B`, whose PMOS is next to the output `Y` (late input near output).
+- Both gates are shared cells: `INV_fin_larger` (2n/3p) and `NOR2` (2n parallel, 6p series each).
+- Load on the adder: `Y<2>` drives 2 NOR2 inputs (2 x 8 fins); `Y<0>`, `Y<1>` drive 1 inverter each (5 fins).
+
+Exhaustive test (`MUX3_RELU/tb_mux_func.sp`, FO4 load on each output, VDD = 0.9 V, 25 ps edges), sampled at 80% of each 1 ns state:
+
+| Y<2:0> | Z1 (V) | Z0 (V) | Result |
+|:-:|:-:|:-:|:-:|
+| 000 | 4.4e-7 | 4.4e-7 | pass |
+| 001 | 4.4e-7 | 0.900 | pass |
+| 010 | 0.900 | 1.1e-5 | pass |
+| 011 | 0.900 | 0.900 | pass |
+| 100 | 4.4e-6 | 4.4e-6 | pass |
+| 101 | 1.9e-6 | 4.6e-7 | pass |
+| 110 | 4.6e-7 | 4.3e-6 | pass |
+| 111 | 4.6e-7 | 4.6e-7 | pass |
+
+![MUX3_RELU schematic](docs/MUX_RELU_schematic.png)
+
+![MUX3_RELU symbol](docs/MUX_RELU_symbol.png)
+
+![MUX3_RELU HSPICE result](docs/MUX_RELU_HSPICE_RESULT.png)
+
 ## Optimization approach
 
 My goal was to use **as few transistors as possible**. Later we can decide whether to trade some transistors for fewer gates or a shorter critical path.
@@ -146,6 +196,7 @@ My goal was to use **as few transistors as possible**. Later we can decide wheth
 | `Full_adder` | 2 XNOR + 2 NAND2 + 1 INV | 30 |
 | `2bit_adder` | 1 Half_adder + 1 Full_adder | 44 |
 | `3bit_adder` | 1 Half_adder + 2 Full_adder | 74 |
+| `MUX3_RELU` | 2 INV_fin_larger + 2 NOR2 | 12 |
 
 - **Half adder:** Sum = INV(XNOR(A, B)). Carry = INV(Z), where Z is the NAND(A, B) output already inside `XNOR_Z`, so carry needs no extra NAND.
 - **Full adder:** two XNORs chained give the sum (no inverter needed). The carry uses NANDs, and the critical path is 4 gates: XNOR, INV, NAND, NAND.
