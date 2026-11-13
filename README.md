@@ -149,8 +149,6 @@ S<2>    = (S1' + N)'                NOR2(INV(S<1>), N)
         = S1 (A1 + B1)
 ```
 
-Why it works: with inputs limited to -1 to 1, the sum is only negative when S1 = 1 and at least one input is negative (A1 or B1 = 1). The one other case with S1 = 1 is 1 + 1 = 2 (`010`), where A1 = B1 = 0, so S2 = 0.
-
 | A | B | A + B | S<2:0> |
 |:-:|:-:|:-:|:-:|
 | 00 (0) | 00 (0) | 0 | 000 |
