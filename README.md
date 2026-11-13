@@ -3,6 +3,8 @@
 
 Blocks needed: multiplier, 2-bit adder, 3-bit adder, 3-bit 2-to-1 MUX (ReLU), combined into a neuron
 
+All schematics: [docs/project_schematics.pdf](docs/project_schematics.pdf)
+
 ## Progress
 
 **XNOR Z** (`XNOR_Z`) (Same as the XNOR, but added the NAND AB as an output (can use instead of computing NAND again))
