@@ -160,7 +160,7 @@ S<2>    = (S1' + N)'                NOR2(INV(S<1>), N)
 
 (A and B are symmetric, so swapped rows are omitted.)
 
-Note: this logic is **only valid because `10` (-2) is never an input**. For -2 + -2 it outputs `000` instead of `100`. If the full -2 to 1 range is ever needed, use `S<2> = MAJ(A<1>, B<1>, S<1>)` instead.
+Note: this logic is **only valid because `10` (-2) is never an input**.
 
 ### Multiplier
 
