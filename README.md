@@ -28,7 +28,7 @@ All schematics: [docs/project_schematics.pdf](docs/project_schematics.pdf)
 - [x] Symbol
 - [ ] Tested
 
-**3-bit adder** (`3bit_adder`): ripple carry, signed. In the neuron, only `S<2:0>` is used (`S<3>` is unconnected)
+**3-bit adder** (`3bit_adder`): ripple carry, signed, no changes needed. In the neuron, only `S<2:0>` is used (`S<3>` is unconnected), see [Neuron](#neuron)
 - [x] Schematic
 - [x] Symbol
 - [ ] Tested
@@ -240,10 +240,46 @@ z = max(0, y)
 
 - 2 `Multiplier`s: `X0 x W00` and `X1 x W10` (2-bit each)
 - `2bit_adder` adds the two products -> `S<2:0>` (-2 to 2)
-- `3bit_adder` adds the bias `W20<2:0>` -> `Y<2:0>`. `S<3>` is left unconnected, so the result is the 3-bit 2's complement sum
+- `3bit_adder` adds the bias `W20` (sign-extended to 3 bits) -> `Y<2:0>`. `S<3>` is left unconnected, so the result is the 3-bit 2's complement sum
 - `MUX3_RELU` -> `Z<1:0>`; `Z<2>` is tied to VSS through a `cds_thru` (Disconnect / Tie to ground box)
 
-Note: since `S<3>` is dropped, the result is only correct if `y` stays within -4 to 3. With products summing to -2..2, that depends on the bias range of `W20`.
+#### W20 sign extension
+
+Like every weight, `W20` is a 2-bit signed number (`11` = -1, `00` = 0, `01` = 1, `10` unused), so the neuron input pin is `W20<1:0>`. The 3-bit adder's `B<2:0>` needs 3 bits, so `W20` is sign-extended by copying its sign bit. This is only wiring, with no gates:
+
+```
+B<2:0> = W20<1>, W20<1>, W20<0>     wire label on the B<2:0> bus: W20<1>,W20<1:0>
+```
+
+| W20<1:0> | value | B<2:0> |
+|:-:|:-:|:-:|
+| 11 | -1 | 111 |
+| 00 | 0 | 000 |
+| 01 | +1 | 001 |
+
+Without it, a 3-bit pin with `W20<2>` left at 0 would read `-1` as `011` (+3).
+
+#### 3-bit adder truth table
+
+A = `2bit_adder` output (-2 to 2), B = sign-extended `W20` (-1 to 1). The sum (-3 to 3) always fits in 3-bit 2's complement (-4 to 3), so `S<2:0>` never overflows and needs no sign extension. `S<3>` is the unsigned carry and is 1 in rows where the signed answer is correct (e.g. -1 + 1), so it must stay unconnected.
+
+| A = S<2:0> of 2bit_adder | B = W20 (extended) | A + B | S<2:0> | S<3> (unused) |
+|:-:|:-:|:-:|:-:|:-:|
+| 110 (-2) | 111 (-1) | -3 | 101 | 1 |
+| 110 (-2) | 000 (0) | -2 | 110 | 0 |
+| 110 (-2) | 001 (+1) | -1 | 111 | 0 |
+| 111 (-1) | 111 (-1) | -2 | 110 | 1 |
+| 111 (-1) | 000 (0) | -1 | 111 | 0 |
+| 111 (-1) | 001 (+1) | 0 | 000 | 1 |
+| 000 (0) | 111 (-1) | -1 | 111 | 0 |
+| 000 (0) | 000 (0) | 0 | 000 | 0 |
+| 000 (0) | 001 (+1) | +1 | 001 | 0 |
+| 001 (+1) | 111 (-1) | 0 | 000 | 1 |
+| 001 (+1) | 000 (0) | +1 | 001 | 0 |
+| 001 (+1) | 001 (+1) | +2 | 010 | 0 |
+| 010 (+2) | 111 (-1) | +1 | 001 | 1 |
+| 010 (+2) | 000 (0) | +2 | 010 | 0 |
+| 010 (+2) | 001 (+1) | +3 | 011 | 0 |
 
 ## Optimization approach
 
