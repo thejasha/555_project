@@ -10,8 +10,8 @@ All schematics: [docs/project_schematics.pdf](docs/project_schematics.pdf)
 **XNOR Z** (`XNOR_Z`) (Same as the XNOR, but added the NAND AB as an output (can use instead of computing NAND again))
 - [x] Schematic
 - [x] Symbol
-- [x] Tested (correct output)
-- [ ] Beta matching (NMOS/PMOS sizing)
+- [ ] Tested (passed before the reorder and 1.5 resizing, needs a re-test)
+- [x] Beta matching (NMOS/PMOS sizing, 1.5, see [XNOR / XNOR_Z](#xnor--xnor_z))
 
 **Half adder** (`Half_adder`): used for bit 0 (no carry-in)
 - [x] Schematic
@@ -48,6 +48,11 @@ Reuses `INV_fin_larger` and `NOR2` (no new supporting cells).
 
 **Neuron**: 2 multipliers -> 2-bit adder -> 3-bit adder (+ bias) -> ReLU (`MUX3_RELU`)
 - [x] Schematic
+- [ ] Symbol
+- [ ] Tested
+
+**Optimized Neuron** (`Optimized_Neuron`): 2 multipliers -> direct Z1/Z0 logic (replaces both adders and the ReLU MUX), see [Optimized Neuron](#optimized-neuron)
+- [x] Schematic (duplicate NOR2 -> INV removed, `OR` net shared)
 - [ ] Symbol
 - [ ] Tested
 
@@ -90,6 +95,35 @@ Y  = ((A + B)Z)'
 | 0 | 1 | 1 | 0 |
 | 1 | 0 | 1 | 0 |
 | 1 | 1 | 0 | 1 |
+
+**Pull-down reorder (done in `XNOR` and `XNOR_Z`):** M0 (gate Z) moved to the top of the pull-down stack, next to the output. Z comes from the NAND2, so it arrives one gate later than A and B. With M0 next to Y, the M1/M2 node has already settled when Z switches, so only M0 has to discharge Y. Same idea as `Y<2>` on the NOR2 input next to the output in `MUX3_RELU`. Logic and sizing are unchanged.
+
+```
+Before:  Y ── M1 (A) || M2 (B) ── net1 ── M0 (Z) ── VSS
+After:   Y ── M0 (Z) ── net1 ── M1 (A) || M2 (B) ── VSS
+```
+
+- M0: drain = Y, source = net1
+- M1, M2: drain = net1, source = VSS
+
+**Beta matching, 1.5 (done in `XNOR` and `XNOR_Z`):** every worst-case pull path matches `INV_fin_larger` (2n/3p), the same reference as `NAND2` (4n/3p) and `NOR2` (2n/6p).
+
+| Device | Gate | Network | Worst-case path | nfin | w |
+|:-:|:-:|---|:-:|:-:|:-:|
+| M0 | Z | pull-down, series with M1 or M2 | 2 deep | 4 | 108e-9 |
+| M1 | A | pull-down, parallel with M2 | 2 deep | 4 | 108e-9 |
+| M2 | B | pull-down, parallel with M1 | 2 deep | 4 | 108e-9 |
+| M3 | Z | pull-up, alone | 1 deep | 3 | 81e-9 |
+| M4 | B | pull-up, series with M5 | 2 deep | 6 | 162e-9 |
+| M5 | A | pull-up, series with M4 | 2 deep | 6 | 162e-9 |
+
+- Pull-down: 4 + 4 in series = 2 fins equivalent. Pull-up: 6 + 6 in series = 3, M3 alone = 3. Ratio 3 : 2 = 1.5.
+- The Z Gate Input `NAND2` is already 4n/3p, no change.
+- Main circuit grows from 6 fins to 27 (transistor count is unchanged).
+
+- [x] Apply the reorder and sizing to `XNOR_Z`
+- [ ] Re-test `XNOR` and `XNOR_Z` (all 4 A/B cases) after the reorder and resizing
+- [ ] Re-run `Multiplier/tb_mult_func.sp` (the multiplier uses `XNOR`)
 
 ### Half adder
 
@@ -330,3 +364,87 @@ Example:
 Only need an output box if you have a wire bus with a bunch of wire connecting into the output.
 
 For symbol, have VDD top, VSS bottom, Inputs left, Outputs right if it makes sense, in the 2/3bit adder I had the S pin be on the bottom.
+
+## Optimized Neuron
+
+Same function as `Neuron` (`z0 = max(0, x0·w00 + x1·w10 + w20)`), but the 2-bit adder, 3-bit adder and `MUX3_RELU` are replaced by direct logic for each output bit. The ReLU is built into the logic: every case where y would be negative gives `Z = 00`, so there is no sign bit or MUX.
+
+Schematic: `Optimized_Neuron`, page 12 of [docs/project_schematics.pdf](docs/project_schematics.pdf)
+
+![Optimized Neuron schematic](Optimized_neuron.png)
+
+### Idea
+
+Each product (`P0 = X0·W00`, `P1 = X1·W10`) and the bias `W20` is -1, 0 or +1. Split each into its two bits:
+
+- `n` = bit 0 = the term is nonzero (`P0<0>`, `P1<0>`, `W20<0>`)
+- `s` = bit 1 = the term is negative (`P0<1>`, `P1<1>`, `W20<1>`)
+
+A full adder on the three n bits counts how many terms are nonzero (`C S` = 0 to 3). The s bits say how many of them are negative.
+
+| Negatives | Count `C S` | z | Why |
+|:-:|:-:|:-:|---|
+| 0 | 00 / 01 / 10 / 11 | 0 / 1 / 2 / 3 | z = `C S` |
+| 1 | 01 or 10 | 0 | result is 0 or negative |
+| 1 | 11 | 1 | two +1 and one -1: count - 2 = 1 |
+| 2 or 3 | any | 0 | `Majority` of the sign bits forces 0 |
+
+### Equations
+
+```
+OR       = P0<1> + P1<1>                       NOR2 -> INV (shared by both blocks below)
+NORSign  = (P0<1> + P1<1> + W20<1>)'           no negative terms
+Majority = P0<1>·P1<1> + W20<1>·OR             2 or more negative terms
+C, S     = Full_adder(P0<0>, P1<0>, W20<0>)    count of nonzero terms
+
+Z<1> = NORSign · C
+Z<0> = Majority' · S · (NORSign + C)
+Z<2> = 0                                       tied to VSS (cds_thru)
+```
+
+`(NORSign + C)` blocks the one case where S = 1 but z must be 0: a single -1 term on its own (e.g. -1, 0, 0).
+
+Checked in a script against all 243 input combinations (x0, w00, x1, w10, w20 each -1/0/+1): Z<2:0> matches `max(0, y)` in every row. This is a logic check, not a simulation of the schematic.
+
+### Gates (2-input only)
+
+| Block (schematic box) | Gates | Output |
+|---|---|---|
+| IF Sign bit is all Positive Logic | NOR2(P0<1>, P1<1>) -> INV -> NOR2(OR, W20<1>) | `OR`, `NORSign` |
+| Majority 1 or 0 Sign Bit Logic | NAND2(W20<1>, OR), NAND2(P0<1>, P1<1>) -> NAND2 | `Majority` |
+| S and C Logic | `Full_adder`(P0<0>, P1<0>, W20<0>) | `C`, `S` |
+| Z<1> Logic | AND2(NORSign, C), the `AND2` cell is a NAND2 + INV inside | `Z<1>` |
+| Z<0> Logic | NOR2(NORSign, C) -> NOR2(·, Majority) -> NAND2(·, S) -> INV | `Z<0>` |
+
+### Transistor count
+
+| Part | Built from | Transistors |
+|---|---|:-:|
+| 2 x `Multiplier` | unchanged | 40 |
+| `Full_adder` | 2 XNOR + 2 NAND2 + 1 INV | 30 |
+| `OR` / `NORSign` | 2 NOR2 + 1 INV | 10 |
+| `Majority` | 3 NAND2 | 12 |
+| `Z<1>` | 1 `AND2` cell = NAND2 + INV | 6 |
+| `Z<0>` | 2 NOR2 + 1 NAND2 + 1 INV | 14 |
+| **Optimized Neuron** | | **112** |
+
+| | Neuron | Optimized Neuron |
+|---|:-:|:-:|
+| Logic after the multipliers | 140 (2bit_adder 54 + 3bit_adder 74 + MUX3_RELU 12) | 72 |
+| Total | 180 | **112** (-68, about 38% fewer) |
+
+Sharing the `OR` net between the NORSign and Majority blocks (instead of building NOR2 -> INV twice) saves 6 transistors (78 -> 72 after the multipliers).
+
+### Notes
+
+- Inputs: the same 2-bit encoding as before (`11` = -1, `00` = 0, `01` = +1). The logic depends on `10` never appearing.
+- No ripple carry chain through two adders. The sign bits (`P<1>`, the latest multiplier outputs) go through about 5 gate levels to `Z<0>`. Delay still needs to be simulated.
+- Slide 14 lists adders and a MUX as the example blocks ("you don't have to follow"), so mention in the report that the ReLU is folded into the output logic.
+- [ ] Symbol
+- [ ] Testbench: all 243 input combinations (or the 27 product/bias cases) against the truth table
+- [ ] Beta check: every gate is a library cell (`NAND2`, `NOR2`, `INV_fin_larger`, `AND2`, `Full_adder`), confirm each is at beta 1.5
+- [ ] **Majority as an AOI22 complex gate** (saves 6 T: 72 -> 66 after the multipliers, 112 -> 106 total). Logic checked against all 243 rows.
+  - New `AOI22` cell: `Y = (A·B + C·D)'`. Pull-down: (A-B series) parallel (C-D series). Pull-up: (A || B) in series with (C || D). Both 2 deep, so beta 1.5 = NMOS 4 fins, PMOS 6 fins.
+  - `Majority_n = AOI22(P0<1>, P1<1>, W20<1>, OR)`, replaces the 3 NAND2 in the Majority box (12 T -> 8 T). Put `OR` (latest input) on the transistor next to Y in its branch.
+  - Z<0> box: delete NOR2(Tn, Majority) -> NAND2(·, S) -> INV and use `W = NAND2(Majority_n, S)`, `Z<0> = NOR2(W, Tn)` (14 T -> 12 T). `Tn = NOR2(NORSign, C)` stays.
+  - After the change, update the tables above (Majority 8, Z<0> 12, total 106) and the schematic image.
